@@ -1,0 +1,16 @@
+# Phase 0/1 — baseline EfficientNetV2-S
+# torch/torchvision : installer la version CUDA correspondant au pod RunPod
+# (souvent déjà présents sur l'image runpod/pytorch). Sinon :
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+torch>=2.1
+torchvision>=0.16
+timm>=0.9.16
+numpy>=1.24
+pandas>=2.0
+pillow>=10.0
+opencv-python-headless>=4.8
+scikit-learn>=1.3
+matplotlib>=3.7
+tqdm>=4.66
+# suivi d'expériences (optionnel mais recommandé)
+# wandb>=0.16
