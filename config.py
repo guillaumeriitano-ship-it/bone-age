@@ -23,6 +23,7 @@ COL_MALE = "male"     # booléen / True-False
 # --- Prétraitement -------------------------------------------------------
 IMG_SIZE = 512
 USE_CLAHE = True      # égalisation adaptative pour rehausser les contours osseux
+USE_CROP = True      # Phase 3 : recadrage automatique sur la main
 VAL_FRACTION = 0.15   # part du train utilisée en validation interne si pas de val labellisée
 SEED = 42
 

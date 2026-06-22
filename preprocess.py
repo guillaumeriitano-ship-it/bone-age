@@ -45,11 +45,42 @@ def make_splits(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
+def crop_to_hand(img):
+    """Recadre l'image sur la main (Phase 3).
+
+    Sépare la main (claire) du fond (sombre) par seuillage d'Otsu, nettoie le
+    masque par morphologie, garde la plus grande composante connexe, puis
+    recadre sur sa boîte englobante. Robuste et sans entraînement supplémentaire.
+    En cas de doute, renvoie l'image d'origine (pas de recadrage).
+    """
+    if img is None or img.size == 0:
+        return img
+    _, mask = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+    k = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (15, 15))
+    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, k)
+    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, k)
+    n, _, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
+    if n <= 1:
+        return img
+    largest = 1 + int(np.argmax(stats[1:, cv2.CC_STAT_AREA]))
+    x, y, w, h = stats[largest, :4]
+    # garde-fou : la main doit occuper une part raisonnable de l'image
+    if w * h < 0.05 * img.shape[0] * img.shape[1]:
+        return img
+    m = int(0.04 * max(img.shape))
+    y0, y1 = max(0, y - m), min(img.shape[0], y + h + m)
+    x0, x1 = max(0, x - m), min(img.shape[1], x + w + m)
+    crop = img[y0:y1, x0:x1]
+    return crop if crop.size else img
+
+
 def preprocess_image(path: Path, size: int, use_clahe: bool) -> np.ndarray:
     """Lit une radio en niveaux de gris, normalise, CLAHE optionnel, resize carré."""
     img = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
     if img is None:
         raise IOError(f"Image illisible : {path}")
+    if getattr(C, "USE_CROP", False):
+        img = crop_to_hand(img)
     if use_clahe:
         clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
         img = clahe.apply(img)
