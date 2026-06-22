@@ -21,20 +21,20 @@ COL_AGE = "boneage"   # en mois
 COL_MALE = "male"     # booléen / True-False
 
 # --- Prétraitement -------------------------------------------------------
-IMG_SIZE = 384        # 384 bon compromis EfficientNetV2-S ; passer à 500 si VRAM ok
+IMG_SIZE = 512
 USE_CLAHE = True      # égalisation adaptative pour rehausser les contours osseux
 VAL_FRACTION = 0.15   # part du train utilisée en validation interne si pas de val labellisée
 SEED = 42
 
 # --- Entraînement --------------------------------------------------------
-MODEL_NAME = "tf_efficientnetv2_s.in21k_ft_in1k"  # backbone timm
-BATCH_SIZE = 32
-EPOCHS = 25
+MODEL_NAME = "tf_efficientnetv2_m.in21k_ft_in1k"
+BATCH_SIZE = 24
+EPOCHS = 40
 LR = 3e-4
 WEIGHT_DECAY = 1e-4
 NUM_WORKERS = 8
 HUBER_DELTA = 10.0    # robustesse aux outliers (en mois)
-EARLY_STOP_PATIENCE = 6
+EARLY_STOP_PATIENCE = 8
 AMP = True            # mixed precision
 
 # Normalisation de la cible : on standardise l'âge (mois) pour stabiliser la régression

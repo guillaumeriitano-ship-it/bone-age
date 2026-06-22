@@ -40,6 +40,8 @@ def run_predictions(model, loader, device, age_mean, age_std):
         img, sex = img.to(device), sex.to(device)
         with torch.autocast(device_type=device.type, enabled=C.AMP):
             out = model(img, sex)
+            out_flip = model(torch.flip(img, dims=[3]), sex)  # TTA: image miroir
+        out = (out.float() + out_flip.float()) / 2
         # on repasse de la valeur standardisée vers des mois
         preds.append(out.float().cpu().squeeze(1) * age_std + age_mean)
         trues.append(age.squeeze(1) * age_std + age_mean)
